@@ -8,6 +8,16 @@ export LANG=${LANG:-C.UTF-8}
 export LC_ALL=${LC_ALL:-C.UTF-8}
 export PYTHONIOENCODING=${PYTHONIOENCODING:-utf-8}
 
+# Install and start cloudflared if token is provided
+if [ -n "$CLOUDFLARED_TOKEN" ]; then
+  echo "Installing cloudflared..."
+  curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /tmp/cloudflared
+  chmod +x /tmp/cloudflared
+  export PATH="/tmp:$PATH"
+  echo "Starting cloudflared tunnel..."
+  /tmp/cloudflared tunnel --no-autoupdate run --token "$CLOUDFLARED_TOKEN" &
+fi
+
 if [[ "${MIGRATION_ENABLED}" == "true" ]]; then
   echo "Running migrations"
   flask upgrade-db
